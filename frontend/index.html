@@ -1,0 +1,131 @@
+
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asisten Konten AI</title>
+    <!-- Menggunakan Tailwind CSS untuk styling cepat -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animasi sederhana untuk spinner */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4f46e5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        /* Style untuk hasil agar bisa menampilkan format Markdown */
+        #result-container { white-space: pre-wrap; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto max-w-2xl p-4 sm:p-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+            
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Asisten Konten AI</h1>
+                <p class="text-gray-500 mt-2">Masukkan topik, dan biarkan agen AI kami membuatkan draf artikel untuk Anda.</p>
+            </div>
+
+            <!-- Form Input -->
+            <div class="space-y-4">
+                <div>
+                    <label for="topic-input" class="block text-sm font-medium text-gray-700 mb-1">Topik Artikel</label>
+                    <input type="text" id="topic-input" placeholder="Contoh: Manfaat teh hijau untuk kesehatan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+                <button id="generate-btn" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out flex items-center justify-center space-x-2">
+                    <span id="btn-text">Buat Artikel</span>
+                    <!-- Spinner loading, awalnya disembunyikan -->
+                    <div id="loader" class="spinner hidden"></div>
+                </button>
+            </div>
+
+            <!-- Area Hasil -->
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Hasil Generasi:</h2>
+                <div id="result-container" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[200px] text-gray-700 leading-relaxed">
+                    Menunggu input untuk memulai...
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Referensi ke elemen-elemen HTML ---
+        const topicInput = document.getElementById('topic-input');
+        const generateBtn = document.getElementById('generate-btn');
+        const resultContainer = document.getElementById('result-container');
+        const loader = document.getElementById('loader');
+        const btnText = document.getElementById('btn-text');
+
+        // --- URL Backend API ---
+        const API_URL = 'http://127.0.0.1:8000/generate';
+
+        // --- Event Listener untuk Tombol ---
+        generateBtn.addEventListener('click', async () => {
+            const topic = topicInput.value.trim();
+
+            if (!topic) {
+                resultContainer.textContent = 'Silakan masukkan topik terlebih dahulu.';
+                return;
+            }
+
+            // --- Mengatur UI saat proses dimulai ---
+            setLoadingState(true);
+
+            try {
+                // --- Mengirim request ke backend ---
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ topic: topic }),
+                });
+
+                if (!response.ok) {
+                    // Menangani error dari server
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Menampilkan hasil dari backend
+                resultContainer.textContent = data.result;
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultContainer.textContent = 'Terjadi kesalahan saat menghubungi server. Silakan coba lagi.\n\nDetail: ' + error.message;
+            } finally {
+                // --- Mengembalikan UI ke keadaan normal setelah selesai ---
+                setLoadingState(false);
+            }
+        });
+
+        // Fungsi bantuan untuk mengubah state loading
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                generateBtn.disabled = true;
+                generateBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                loader.classList.remove('hidden');
+                btnText.textContent = 'Memproses...';
+                resultContainer.textContent = 'Agen AI sedang bekerja, mohon tunggu...';
+            } else {
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                loader.classList.add('hidden');
+                btnText.textContent = 'Buat Artikel';
+            }
+        }
+    </script>
+
+</body>
+</html>
