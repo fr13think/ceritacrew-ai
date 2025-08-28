@@ -1,0 +1,72 @@
+# ===============================================================
+# File Konfigurasi Sensitif & Lingkungan
+# ===============================================================
+# Abaikan file .env di dalam folder backend. Ini SANGAT PENTING untuk keamanan!
+backend/.env
+
+# Abaikan file .env lain yang mungkin ada di root atau folder lain
+.env
+*.env
+
+# ===============================================================
+# Folder Virtual Environment Python (di dalam backend)
+# ===============================================================
+# Abaikan folder virtual environment. Nama-nama umum disertakan.
+venv/
+env/
+.venv/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+backend/venv/
+backend/env/
+backend/.venv/
+backend/.env/
+backend/ENV/
+backend/env.bak/
+backend/venv.bak/
+
+# ===============================================================
+# File & Folder Spesifik Python
+# ===============================================================
+# Cache Python
+__pycache__/
+backend/__pycache__/
+*.py[cod]
+*$py.class
+
+# Laporan & alat pengujian
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ===============================================================
+# File Spesifik Sistem Operasi
+# ===============================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===============================================================
+# Folder Spesifik Editor & IDE
+# ===============================================================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ===============================================================
+# Folder Dependensi Frontend (jika Anda menggunakan Node.js nanti)
+# ===============================================================
+# Abaikan folder node_modules jika Anda memutuskan untuk menggunakan
+# framework JavaScript di masa depan.
+frontend/node_modules/
+node_modules/

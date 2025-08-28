@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+crewai
+langchain-litellm
+python-dotenv
