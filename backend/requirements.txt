@@ -3,3 +3,4 @@ uvicorn[standard]
 crewai
 langchain-litellm
 python-dotenv
+langchain-community
