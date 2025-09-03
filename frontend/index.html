@@ -1,131 +1,200 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asisten Konten AI</title>
-    <!-- Menggunakan Tailwind CSS untuk styling cepat -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Animasi sederhana untuk spinner */
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #4f46e5;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        /* Style untuk hasil agar bisa menampilkan format Markdown */
-        #result-container { white-space: pre-wrap; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asisten Konten AI by Masbrou</title>
+
+  <!-- Tailwind untuk styling cepat -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Markdown renderer + sanitizer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      border: 4px solid rgba(0,0,0,0.1);
+      border-left-color: #4f46e5;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    /* Agar layout rapi saat render Markdown */
+    #result-container { line-height: 1.7; }
+    #result-container h1, #result-container h2, #result-container h3 { margin-top: 1rem; margin-bottom: 0.5rem; }
+    #result-container ul { list-style: disc; padding-left: 1.2rem; }
+    #result-container ol { list-style: decimal; padding-left: 1.2rem; }
+    #result-container pre { background: #111827; color: #e5e7eb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+    #result-container code { background: #f3f4f6; padding: 0.1rem 0.25rem; border-radius: 0.25rem; }
+  </style>
 </head>
 <body class="bg-gray-100 font-sans">
+  <div class="container mx-auto max-w-2xl p-4 sm:p-8">
+    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Asisten Konten AI Masbrou</h1>
+        <p class="text-gray-500 mt-2">Masukkan topik, dan biarkan agen AI kami membuatkan draf artikel untuk Anda.</p>
+      </div>
 
-    <div class="container mx-auto max-w-2xl p-4 sm:p-8">
-        <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-            
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Asisten Konten AI</h1>
-                <p class="text-gray-500 mt-2">Masukkan topik, dan biarkan agen AI kami membuatkan draf artikel untuk Anda.</p>
-            </div>
-
-            <!-- Form Input -->
-            <div class="space-y-4">
-                <div>
-                    <label for="topic-input" class="block text-sm font-medium text-gray-700 mb-1">Topik Artikel</label>
-                    <input type="text" id="topic-input" placeholder="Contoh: Manfaat teh hijau untuk kesehatan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                </div>
-                <button id="generate-btn" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out flex items-center justify-center space-x-2">
-                    <span id="btn-text">Buat Artikel</span>
-                    <!-- Spinner loading, awalnya disembunyikan -->
-                    <div id="loader" class="spinner hidden"></div>
-                </button>
-            </div>
-
-            <!-- Area Hasil -->
-            <div class="mt-8">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Hasil Generasi:</h2>
-                <div id="result-container" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[200px] text-gray-700 leading-relaxed">
-                    Menunggu input untuk memulai...
-                </div>
-            </div>
-
+      <!-- Form Input -->
+      <div class="space-y-4">
+        <div>
+          <label for="topic-input" class="block text-sm font-medium text-gray-700 mb-1">Topik Artikel</label>
+          <input
+            type="text"
+            id="topic-input"
+            placeholder="Contoh: Manfaat teh hijau untuk kesehatan"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+          />
+          <p class="text-xs text-gray-400 mt-1">
+            Tekan Enter untuk submit. Catatan: jangan sertakan daftar sumber/bibliografi di akhir.
+          </p>
         </div>
+        <button
+          id="generate-btn"
+          class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out flex items-center justify-center space-x-2"
+        >
+          <span id="btn-text">Buat Artikel</span>
+          <div id="loader" class="spinner hidden"></div>
+        </button>
+      </div>
+
+      <!-- Area Hasil -->
+      <div class="mt-8">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-xl font-semibold text-gray-800">Hasil Generasi:</h2>
+          <button
+            id="copy-btn"
+            class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded border border-gray-300"
+            title="Salin hasil"
+          >
+            Salin
+          </button>
+        </div>
+        <div id="result-container" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[200px] text-gray-700">
+          Menunggu input untuk memulai...
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // --- Referensi ke elemen-elemen HTML ---
-        const topicInput = document.getElementById('topic-input');
-        const generateBtn = document.getElementById('generate-btn');
-        const resultContainer = document.getElementById('result-container');
-        const loader = document.getElementById('loader');
-        const btnText = document.getElementById('btn-text');
+  <script>
+    // Elemen
+    const topicInput = document.getElementById('topic-input');
+    const generateBtn = document.getElementById('generate-btn');
+    const resultContainer = document.getElementById('result-container');
+    const loader = document.getElementById('loader');
+    const btnText = document.getElementById('btn-text');
+    const copyBtn = document.getElementById('copy-btn');
 
-        // --- URL Backend API ---
-        // GANTI DENGAN URL DARI RENDER SETELAH DEPLOY
-        const API_URL = 'http://127.0.0.1:8000/generate';
+    // API URL
+    // Opsi 1 (default dev): gunakan backend lokal
+    let API_URL = localStorage.getItem('API_URL') || 'http://127.0.0.1:8000/generate';
+    // Opsi 2 (same-origin saat sudah deploy bareng backend): 
+    // API_URL = `${window.location.origin}/generate`;
 
-        // --- Event Listener untuk Tombol ---
-        generateBtn.addEventListener('click', async () => {
-            const topic = topicInput.value.trim();
+    function renderMarkdownSafe(text) {
+      const html = marked.parse(text || '');
+      const safe = DOMPurify.sanitize(html);
+      resultContainer.innerHTML = safe;
+    }
 
-            if (!topic) {
-                resultContainer.textContent = 'Silakan masukkan topik terlebih dahulu.';
-                return;
-            }
+    function setLoadingState(isLoading) {
+      if (isLoading) {
+        generateBtn.disabled = true;
+        generateBtn.classList.add('opacity-70', 'cursor-not-allowed');
+        loader.classList.remove('hidden');
+        btnText.textContent = 'Memproses...';
+        renderMarkdownSafe('Agen AI sedang bekerja, mohon tunggu...');
+      } else {
+        generateBtn.disabled = false;
+        generateBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+        loader.classList.add('hidden');
+        btnText.textContent = 'Buat Artikel';
+      }
+    }
 
-            setLoadingState(true);
-            console.log(`[FRONTEND] Mengirim topik: "${topic}" ke ${API_URL}`);
+    async function requestGenerate(topic) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 detik timeout
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ topic: topic }),
-                });
-
-                console.log('[FRONTEND] Menerima respons dari server:', response);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('[FRONTEND] Data JSON dari server:', data);
-
-                resultContainer.textContent = data.result;
-
-            } catch (error) {
-                console.error('[FRONTEND] Terjadi error saat fetch:', error);
-                resultContainer.textContent = 'Terjadi kesalahan saat menghubungi server. Periksa Console (F12) untuk detail.\n\nDetail: ' + error.message;
-            } finally {
-                setLoadingState(false);
-            }
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ topic }),
+          signal: controller.signal,
+          cache: 'no-store',
+          // mode: 'cors', // default sudah cors jika origin berbeda
         });
 
-        // Fungsi bantuan untuk mengubah state loading
-        function setLoadingState(isLoading) {
-            if (isLoading) {
-                generateBtn.disabled = true;
-                generateBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                loader.classList.remove('hidden');
-                btnText.textContent = 'Memproses...';
-                resultContainer.textContent = 'Agen AI sedang bekerja, mohon tunggu...';
-            } else {
-                generateBtn.disabled = false;
-                generateBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                loader.classList.add('hidden');
-                btnText.textContent = 'Buat Artikel';
-            }
+        if (!response.ok) {
+          // Coba ambil pesan error detail dari backend
+          let serverDetail = '';
+          try {
+            const errJson = await response.json();
+            serverDetail = errJson?.detail || JSON.stringify(errJson);
+          } catch {
+            serverDetail = await response.text();
+          }
+          throw new Error(`Gagal (${response.status}): ${serverDetail || 'Unknown error'}`);
         }
-    </script>
 
+        const data = await response.json();
+        return data?.result ?? '';
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    generateBtn.addEventListener('click', async () => {
+      const topic = topicInput.value.trim();
+      if (!topic) {
+        renderMarkdownSafe('Silakan masukkan topik terlebih dahulu.');
+        return;
+      }
+
+      setLoadingState(true);
+      try {
+        const resultText = await requestGenerate(topic);
+        // Tampilkan sebagai Markdown
+        renderMarkdownSafe(resultText);
+      } catch (error) {
+        console.error('[FRONTEND] Error:', error);
+        renderMarkdownSafe(`Terjadi kesalahan saat menghubungi server.\n\nDetail: ${error.message}`);
+      } finally {
+        setLoadingState(false);
+      }
+    });
+
+    // Submit dengan Enter (tanpa Shift)
+    topicInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        generateBtn.click();
+      }
+    });
+
+    // Salin hasil ke clipboard
+    copyBtn.addEventListener('click', async () => {
+      const temp = document.createElement('div');
+      temp.innerHTML = resultContainer.innerHTML;
+      const text = temp.innerText; // salin sebagai teks
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Tersalin ✓';
+        setTimeout(() => (copyBtn.textContent = 'Salin'), 1500);
+      } catch {
+        alert('Gagal menyalin. Salin manual dari area hasil.');
+      }
+    });
+  </script>
 </body>
 </html>
