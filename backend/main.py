@@ -38,8 +38,8 @@ app = FastAPI(
 # CORS: izinkan file:// (Origin: null) dan origin lain saat dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*", "null"],
-    allow_credentials=False,
+    allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
