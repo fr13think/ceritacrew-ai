@@ -4,3 +4,4 @@ crewai
 langchain-litellm
 python-dotenv
 langchain-community
+litellm
